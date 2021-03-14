@@ -4,15 +4,15 @@
     <section id="first">
       <div v-if="state.loading">Loading...</div>
       <ul v-else>
-        <li>
+        <li :class="getColor('deaths')">
           <span class="material-icons">Deaths</span>
           <div>{{ state.data.deaths.value }}</div>
         </li>
-        <li>
+        <li :class="getColor('confirmed')">
           <span class="material-icons">confirmed</span>
           <div>{{ state.data.confirmed.value }}</div>
         </li>
-        <li>
+        <li :class="getColor('recovered')">
           <span class="material-icons">Recovered</span>
           <div>{{ state.data.recovered.value }}</div>
         </li>
@@ -22,11 +22,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, onMounted, reactive } from "vue";
-// import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import {
+  defineComponent,
+  onBeforeMount,
+  reactive,
+} from "vue";
 import { Icovid } from "../types";
-// import gsap from "gsap";
 import axios from "axios";
+// import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+// import gsap from "gsap";
 
 // gsap.registerPlugin(ScrollToPlugin);
 
@@ -46,8 +50,19 @@ export default defineComponent({
         state.loading = false;
       });
     });
+
+    const getColor = (type: string) => {
+      if (type == "confirmed") {
+        return "confirmed";
+      } else if (type == "deaths") {
+        return "deaths";
+      } else if (type == "recovered") {
+        return "recovered";
+      }
+    };
     return {
       state,
+      getColor,
     };
   },
 });
@@ -74,5 +89,15 @@ export default defineComponent({
   box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   line-height: 1.5em;
+}
+
+.confirmed {
+  border-bottom: 4px solid rgb(252, 169, 45);
+}
+.deaths {
+  border-bottom: 4px solid rgb(255, 0, 0);
+}
+.recovered {
+  border-bottom: 4px solid rgb(51, 255, 0);
 }
 </style>
