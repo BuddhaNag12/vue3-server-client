@@ -1,68 +1,58 @@
 <template>
   <div class="contact">
     <h1>Covid 19 visualization Global data</h1>
+    <form @submit.prevent="search">
+      <input
+        type="text"
+        name="search"
+        id="search"
+        v-model="state.query"
+        placeholder="Search"
+      />
+    </form>
     <section id="first">
       <div v-if="state.loading">Loading...</div>
-      <ul v-else>
-        <li :class="getColor('deaths')">
-          <span class="material-icons">Deaths</span>
-          <div>{{ state.data.deaths.value }}</div>
-        </li>
-        <li :class="getColor('confirmed')">
-          <span class="material-icons">confirmed</span>
-          <div>{{ state.data.confirmed.value }}</div>
-        </li>
-        <li :class="getColor('recovered')">
-          <span class="material-icons">Recovered</span>
-          <div>{{ state.data.recovered.value }}</div>
-        </li>
-      </ul>
+      <div v-else>
+        <card :data="state.data" />
+      </div>
     </section>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  onBeforeMount,
-  reactive,
-} from "vue";
+import { defineComponent, onBeforeMount, reactive } from "vue";
+import card from "@/components/card.vue";
+
 import { Icovid } from "../types";
 import axios from "axios";
-// import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-// import gsap from "gsap";
-
-// gsap.registerPlugin(ScrollToPlugin);
+import router from "@/router";
 
 export default defineComponent({
   name: "Home",
-
+  components: {
+    card,
+  },
   setup() {
     const state = reactive({
       data: {} as Icovid,
       loading: false,
+      query: "",
     });
 
     onBeforeMount(() => {
       state.loading = true;
-      axios.get("http://localhost:4000").then((res) => {
+      axios.get("https://covid19.mathdro.id/api/").then((res) => {
         state.data = res.data;
         state.loading = false;
       });
     });
 
-    const getColor = (type: string) => {
-      if (type == "confirmed") {
-        return "confirmed";
-      } else if (type == "deaths") {
-        return "deaths";
-      } else if (type == "recovered") {
-        return "recovered";
-      }
-    };
+    function search() {
+      router.push({ path: "/search", query: { q: state.query } });
+    }
     return {
       state,
-      getColor,
+      search,
     };
   },
 });
@@ -72,32 +62,13 @@ export default defineComponent({
 .home {
   text-align: center;
 }
-
-.contact ul {
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: 20px;
-  max-width: 400px;
-  margin: 60px auto;
+input[type="text"] {
+  border-radius: 8px;
+  outline: none;
+  padding: 20px;
+  transition: border 0.5s ease-in-out;
 }
-.contact li {
-  list-style-type: none;
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  line-height: 1.5em;
-}
-
-.confirmed {
-  border-bottom: 4px solid rgb(252, 169, 45);
-}
-.deaths {
-  border-bottom: 4px solid rgb(255, 0, 0);
-}
-.recovered {
-  border-bottom: 4px solid rgb(51, 255, 0);
+input[type="text"]:focus {
+  border: 2px solid greenyellow;
 }
 </style>
