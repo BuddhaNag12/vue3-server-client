@@ -11,9 +11,14 @@
       />
     </form>
     <section id="first">
-      <div v-if="state.loading">Loading...</div>
+      <div v-if="state.loading || state.error">Loading...</div>
       <div v-else>
         <card :data="state.data" />
+      </div>
+      <div v-if="state.error">
+        <h1>
+          {{ state.error }}
+        </h1>
       </div>
     </section>
   </div>
@@ -37,14 +42,21 @@ export default defineComponent({
       data: {} as Icovid,
       loading: false,
       query: "",
+      error: "",
     });
 
     onBeforeMount(() => {
       state.loading = true;
-      axios.get("https://covid19.mathdro.id/api/").then((res) => {
-        state.data = res.data;
-        state.loading = false;
-      });
+      axios
+        .get("https://covid19.mathdro.id/api/")
+        .then((res) => {
+          state.data = res.data;
+          state.loading = false;
+        })
+        .catch((error) => {
+          state.loading = false;
+          state.error = error.message;
+        });
     });
 
     function search() {
@@ -70,5 +82,8 @@ input[type="text"] {
 }
 input[type="text"]:focus {
   border: 2px solid greenyellow;
+}
+.flex {
+  display: flex;
 }
 </style>

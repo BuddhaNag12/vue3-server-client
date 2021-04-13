@@ -1,10 +1,13 @@
 <template>
   <div>
-    <h1>&nbsp;{{ $route.query.q }}</h1>
+    <h1>&nbsp;{{ $route.query.q.toUpperCase() }}</h1>
     <section id="first">
       <div v-if="state.loading">Loading...</div>
       <div v-else>
-        <ul v-if="!state.error">
+        <div class="date">
+          <h1>{{state.data.lastUpdate}}</h1>
+        </div>
+        <ul v-if="!state.error || state.data.length > 0">
           <li class="deaths">
             <span class="material-icons">Deaths</span>
             <div>{{ state.data.deaths.value }}</div>
@@ -19,16 +22,16 @@
           </li>
         </ul>
       </div>
-      <div v-if="state.error">{{state.error}}</div>
+      <div v-if="state.error">{{ state.error }}</div>
     </section>
   </div>
 </template>
 
 <script lang="ts">
-import { onBeforeMount, onMounted, reactive } from "vue";
-import { useRouter } from "vue-router";
 import axios from "axios";
 import { Icovid } from "../types";
+import {reactive } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
@@ -39,23 +42,22 @@ export default {
 
     const state = reactive({
       data: {} as Icovid,
-      loading: false,
+      loading: true,
       error: "",
     });
 
-    onBeforeMount(() => {
-      state.loading = true;
-      axios
-        .get(`https://covid19.mathdro.id/api/countries/${query.q}`)
-        .then((res) => {
-          state.data = res.data;
-          state.loading = false;
-        })
-        .catch((err)=>{
-          state.error = err.message
-          state.loading=false
-        });
-    });
+    axios
+      .get(`https://covid19.mathdro.id/api/countries/${query.q}`)
+      .then((res) => {
+        state.data = res.data;
+        state.loading = false;
+        console.log(res.data)
+      })
+      .catch((err) => {
+        state.error = err.message;
+        state.loading = false;
+      });
+
     return {
       state,
     };
